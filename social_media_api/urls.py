@@ -16,8 +16,10 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("/api/social_media/", include("social_media.urls", namespace="social_media")),
+    path("/api/user/", include("user.urls", namespace="user")),
 ]
