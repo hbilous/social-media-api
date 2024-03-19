@@ -1,9 +1,11 @@
+from django.db.models import Q
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from user.models import User
 from user.serializers import UserSerializer, AuthTokenSerializer
 
 
@@ -23,3 +25,15 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class UserSearchView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = User.objects.all()
+        query = self.request.query_params.get("q", None)
+        if query:
+            queryset = queryset.filter(Q(username__icontains=query))
+        return queryset
