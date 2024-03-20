@@ -1,12 +1,16 @@
 from django.db.models import Q
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, viewsets
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from user.models import User
-from user.serializers import UserSerializer, AuthTokenSerializer
+from user.models import User, UserFollowing
+from user.serializers import (
+    UserSerializer,
+    AuthTokenSerializer,
+    UserFollowingSerializer,
+)
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -37,3 +41,8 @@ class UserSearchView(generics.ListAPIView):
         if query:
             queryset = queryset.filter(Q(username__icontains=query))
         return queryset
+
+
+class UserFollowingViewSet(viewsets.ModelViewSet):
+    serializer_class = UserFollowingSerializer
+    queryset = UserFollowing.objects.all()

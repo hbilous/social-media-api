@@ -16,7 +16,7 @@ def post_image_image_file_path(instance, filename):
 
 class Post(models.Model):
     content = models.CharField(max_length=255)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     media = models.ImageField(
         upload_to=post_image_image_file_path, blank=True, null=True
     )
@@ -24,13 +24,13 @@ class Post(models.Model):
 
 
 class Like(models.Model):
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
 
 
 class Comment(models.Model):
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     content = models.CharField(max_length=255)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")

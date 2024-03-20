@@ -6,6 +6,12 @@ from social_media.models import Post, Like, Comment
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
+        fields = ("id", "content", "created_at", "media")
+
+
+class PostListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
         fields = ("id", "content", "created_at", "media", "user")
 
 

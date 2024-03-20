@@ -2,13 +2,50 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
 from django.utils.translation import gettext as _
 
+from user.models import UserFollowing
+
+
+class UserFollowingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserFollowing
+        fields = "__all__"
+
+
+class FollowingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserFollowing
+        fields = ("id", "following_user_id", "created")
+
+
+class FollowersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserFollowing
+        fields = ("id", "user_id", "created")
+
 
 class UserSerializer(serializers.ModelSerializer):
+    following = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
+
     class Meta:
         model = get_user_model()
-        fields = ("id", "email", "password", "is_staff")
-        read_only_fields = ("is_staff",)
+        fields = (
+            "id",
+            "email",
+            "password",
+            "bio",
+            "profile_picture",
+            "following",
+            "followers",
+        )
         extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
+
+    def get_following(self, obj):
+        return FollowingSerializer(obj.following.all(), many=True).data
+
+    def get_followers(self, obj):
+        return FollowersSerializer(obj.followers.all(), many=True).data
 
     def create(self, validated_data):
         """Create a new user with encrypted password and return it"""
