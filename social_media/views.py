@@ -46,16 +46,3 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticated,)
-
-
-def follow_user(request, user_id):
-    user_to_follow = get_object_or_404(User, id=user_id)
-    if not request.user.following.filter(id=user_id).exists():
-        Follow.objects.create(follower=request.user, following=user_to_follow)
-    return redirect("profile_page")
-
-
-def unfollow_user(request, user_id):
-    user_to_unfollow = get_object_or_404(User, id=user_id)
-    request.user.following.filter(id=user_id).delete()
-    return redirect("profile_page")
