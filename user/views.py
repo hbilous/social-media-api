@@ -1,3 +1,48 @@
-from django.shortcuts import render
+from django.db.models import Q
+from rest_framework import generics, viewsets
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.settings import api_settings
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
-# Create your views here.
+from user.models import User, UserFollowing
+from user.serializers import (
+    UserSerializer,
+    AuthTokenSerializer,
+    UserFollowingSerializer,
+)
+
+
+class CreateUserView(generics.CreateAPIView):
+    serializer_class = UserSerializer
+
+
+class CreateTokenView(ObtainAuthToken):
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+    serializer_class = AuthTokenSerializer
+
+
+class ManageUserView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
+
+
+class UserSearchView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = User.objects.all()
+        query = self.request.query_params.get("q", None)
+        if query:
+            queryset = queryset.filter(Q(username__icontains=query))
+        return queryset
+
+
+class UserFollowingViewSet(viewsets.ModelViewSet):
+    serializer_class = UserFollowingSerializer
+    queryset = UserFollowing.objects.all()
